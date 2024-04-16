@@ -1,6 +1,6 @@
 # 2DPhononINS-ML
 
-## Getting started
+## Getting Started
 
 ### Installation
 1. Clone the repository
@@ -16,7 +16,7 @@ conda activate 2DPhononINS
 ```
 3. Install requirements
 ```
-conda install --file requirements.txt
+conda install --yes --file requirements.txt
 ```
 
 ### Data Downloads
