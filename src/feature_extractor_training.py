@@ -16,14 +16,14 @@ if __name__ == '__main__':
 
     # model
     autoencoder = FCAE(latent_dim=30)  # choose the antoencoder model (FCAE, FCVAE, CNNAE, CNNVAE)
-    is_read_model = True  # used only for continued training
+    is_read_model = False  # used only for continued training
     read_model = '2000'  # only valid if is_read_model==True
 
     # training parameters
     batch = 64
     learning_rate = 0.1
     momentum = 0.9
-    epoch = 500
+    epoch = 2000
     weight = 1e-6  # only used for variational models
     save_model_interval = 100 if is_read_model else 200
 
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     validation_dataloader = DataLoader(validation_dataset, batch_size=batch, shuffle=True, drop_last=True)
     # test_dataloader = DataLoader(test_dataset, batch_size=batch, shuffle=True, drop_last=True)
 
-    os.mkdirs(os.path.join(root_dir, autoencoder_dir), exist_ok=True)
+    os.makedirs(os.path.join(root_dir, autoencoder_dir), exist_ok=True)
     if is_read_model:
         autoencoder.load_state_dict(torch.load(os.path.join(root_dir, autoencoder_dir, f'model_epoch{read_model}.pth')))
     autoencoder = autoencoder.to(device)

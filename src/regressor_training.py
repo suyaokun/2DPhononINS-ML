@@ -56,7 +56,7 @@ if __name__ == '__main__':
     is_vae = True if hasattr(autoencoder, 'reparameterization') else False
     autoencoder.eval()
 
-    os.mkdirs(os.path.join(root_dir, predictor_dir), exist_ok=True)
+    os.makedirs(os.path.join(root_dir, predictor_dir), exist_ok=True)
     if is_read_model:
         fc_predictor.load_state_dict(torch.load(os.path.join(root_dir, predictor_dir, f'predictor_epoch{read_model}.pth')))
     fc_predictor = fc_predictor.to(device)
