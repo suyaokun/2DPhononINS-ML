@@ -4,13 +4,14 @@
 # Machine Learning project
 
 from utils_models import *
+import os
 
 
 if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(device)
-    root_dir = '/../'
-    autoencoder_dir = '../models/FCAE_FT/'  # folder to store model
+    root_dir = os.path.join(os.path.dirname(__file__), '..')
+    autoencoder_dir = os.path.join('models', 'customized')  # folder to store model
 
     # model
     autoencoder = FCAE(latent_dim=30)  # choose the antoencoder model
@@ -27,7 +28,7 @@ if __name__ == '__main__':
     save_model_interval = 100 if is_read_model else 200
 
     # transform the input data for the model
-    exp = torch.load(root_dir + 'data/1.pt'); exp = exp.to(device)
+    exp = torch.load(os.path.join(root_dir, 'data', '1.pt')); exp = exp.to(device)
     mask = ~exp.isnan()  # mask is the places where data is valid
     if autoencoder.isfc:
         transform = MaskFlatten(mask)
@@ -35,8 +36,8 @@ if __name__ == '__main__':
         transform = None
     mask_flatten = MaskFlatten(mask)
 
-    train_dataset = Mydata_unlabeled(root_dir, 'dataset/exp_23379_sub/', transform=transform)
-    validation_dataset = Mydata_unlabeled(root_dir, 'dataset/exp_23379_sub/', transform=transform)  # same to look at performance on exp
+    train_dataset = Mydata_unlabeled(root_dir, os.path.join('dataset', 'exp_23379_sub'), transform=transform)
+    validation_dataset = Mydata_unlabeled(root_dir, os.path.join('dataset', 'exp_23379_sub'), transform=transform)  # same to look at performance on exp
     # test_dataset = Mydata_unlabeled(root_dir, 'dataset/exp_23379_sub/', transform=transform)
     print(f'Length of training dataset: {len(train_dataset)}')
     print(f'Length of validation dataset: {len(validation_dataset)}')
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     # test_dataloader = DataLoader(test_dataset, batch_size=batch, shuffle=True, drop_last=True)
 
     if is_read_model:
-        autoencoder.load_state_dict(torch.load(root_dir + autoencoder_dir + f'model_epoch{read_model}.pth'))
+        autoencoder.load_state_dict(torch.load(os.path.join(root_dir, autoencoder_dir, f'model_epoch{read_model}.pth')))
     autoencoder = autoencoder.to(device)
     is_vae = True if hasattr(autoencoder, 'reparameterization') else False
 
@@ -107,5 +108,5 @@ if __name__ == '__main__':
             total_val_loss = total_val_loss / num_batch
         print(f'Total validation loss: {total_val_loss}')
         if (i+1) % save_model_interval == 0:
-            torch.save(autoencoder.state_dict(), root_dir + autoencoder_dir + f'model_epoch{i + 1}.pth')
+            torch.save(autoencoder.state_dict(), os.path.join(root_dir, autoencoder_dir, f'model_epoch{i + 1}.pth'))
 

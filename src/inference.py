@@ -8,7 +8,7 @@
 import numpy as np
 import torchvision.transforms as T
 from utils_models import *
-
+import os
 
 def predict_fcs(input_data, return_var='fcs'):
     pre_list = []
@@ -43,10 +43,10 @@ def predict_fcs(input_data, return_var='fcs'):
 
 
 if __name__ == '__main__':
-    root_dir = '/../' 
-    label_file = 'dataset/x_record'
-    autoencoder_dir = 'autoencoder/FCAE_FT/'  # folder to read the autoencoder model
-    predictor_dir = autoencoder_dir + 'predictor/1/'  # folder to read the regressor model
+    root_dir = os.path.join(os.path.dirname(__file__), '..')
+    label_file = os.path.join('dataset', 'x_record')
+    autoencoder_dir = os.path.join('models', 'FCAE_FT')  # folder to read the autoencoder model
+    predictor_dir = os.path.join(autoencoder_dir, 'predictor', '1')  # folder to read the regressor model
 
     # model
     autoencoder = FCAE(latent_dim=30)  # choose the antoencoder model
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     mean_train = False  # use mean value or sampled value as the latent code for regressor in variational models. True: mean value; False: sampled value.
 
     # transform the input data for the model
-    mask = torch.load(root_dir + 'data/1.pt')
+    mask = torch.load(os.path.join(root_dir, 'data', '1.pt'))
     mask = ~mask.isnan()  # mask is the places where data is valid
     if autoencoder.isfc:
         transform = MaskFlatten(mask)
@@ -66,10 +66,10 @@ if __name__ == '__main__':
         retransform = T.Compose([])
     mask_flatten = MaskFlatten(mask)
 
-    autoencoder.load_state_dict(torch.load(root_dir + autoencoder_dir + f'model_epoch{autoencoder_model}.pth', map_location="cpu"))
+    autoencoder.load_state_dict(torch.load(os.path.join(root_dir, autoencoder_dir, f'model_epoch{autoencoder_model}.pth'), map_location="cpu"))
     is_vae = True if hasattr(autoencoder, 'reparameterization') else False
     autoencoder.eval()
-    fc_predictor.load_state_dict(torch.load(root_dir + predictor_dir + f'predictor_epoch{read_model}.pth', map_location="cpu"))
+    fc_predictor.load_state_dict(torch.load(os.path.join(root_dir, predictor_dir, f'predictor_epoch{read_model}.pth'), map_location="cpu"))
     fc_predictor.eval()
 
     # Start testing
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     # test on exp test set
     with torch.no_grad():
         for t in [50,150,280,350,450,540,640]:
-            exp = torch.load(root_dir + f'dataset/exp_23379_sub/exp_chi_{t}K_mean.pt')
+            exp = torch.load(os.path.join(root_dir, 'dataset', 'exp_23379_sub', f'exp_chi_{t}K_mean.pt'))
             exp = exp.float()
             data = transform(exp).reshape(1,-1) if autoencoder.isfc else transform(exp).reshape(1,1,70,101)
             if is_vae and is_std:
